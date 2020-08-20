@@ -8,3 +8,4 @@ bogirras@gmail.com
 
 ### Домашние задания
 - hw01-gradle - проект gradle с модульной структурой
+- hw03-generics - DIY ArrayList
