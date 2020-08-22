@@ -16,22 +16,24 @@ public class Starter {
         }
 
         for (int i = 0; i < firstList.size(); i++) {
-            System.out.println(i + "_" +firstList.get(i));
+            System.out.println(i + "_" + firstList.get(i));
         }
 
         Collections.sort(firstList);
 
         for (int i = 0; i < firstList.size(); i++) {
-            System.out.println(i + "_" +firstList.get(i));
+            System.out.println(i + "_" + firstList.get(i));
         }
 
         DIYArrayList<Integer> listForAddToFirst = new DIYArrayList<>();
         listForAddToFirst.add(777);
+        listForAddToFirst.add(888);
+        listForAddToFirst.add(999);
 
         firstList.addAll(listForAddToFirst);
 
         for (int i = 0; i < firstList.size(); i++) {
-            System.out.println(i + "_" +firstList.get(i));
+            System.out.println(i + "_" + firstList.get(i));
         }
 
         DIYArrayList<Integer> listForCopy = new DIYArrayList<>();
@@ -43,7 +45,7 @@ public class Starter {
         Collections.copy(firstList, listForCopy);
 
         for (int i = 0; i < firstList.size(); i++) {
-            System.out.println(i + "_" +firstList.get(i));
+            System.out.println(i + "_" + firstList.get(i));
         }
 
     }

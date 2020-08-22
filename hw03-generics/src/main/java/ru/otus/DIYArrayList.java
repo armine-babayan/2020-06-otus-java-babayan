@@ -3,34 +3,36 @@ package ru.otus;
 import java.util.*;
 
 public class DIYArrayList<T> implements List<T> {
-    Object[] arrElements;
+    private final int DEFAULT_GROWTH_SIZE = 10;
+    private Object[] arrElements;
+    private int size = 0;
 
     public DIYArrayList() {
-        this.arrElements = new Object[0];
+        arrElements = new Object[DEFAULT_GROWTH_SIZE];
     }
 
     public DIYArrayList(int defaultSize) {
         if (defaultSize < 0) {
             throw new IllegalArgumentException("Default size can't be smaller than zero: " + defaultSize);
         }
-        this.arrElements = new Object[defaultSize];
+        arrElements = new Object[defaultSize];
     }
 
     @Override
     public int size() {
-        return arrElements.length;
+        return size;
     }
 
     @Override
     public boolean add(T t) {
-        int nextIndex = size();
+        int nextIndex = size;
         add(nextIndex, t);
         return true;
     }
 
     @Override
     public void add(int index, T element) {
-        if (index < size()) {
+        if (index < size) {
             throw new IndexOutOfBoundsException("index can't be smaller than array size: " + index);
         }
         grow();
@@ -43,7 +45,7 @@ public class DIYArrayList<T> implements List<T> {
         int externalSize = externalArr.length;
         if (externalSize == 0)
             return false;
-        int internalSize = size();
+        int internalSize = size;
         grow(externalSize);
         System.arraycopy(externalArr, 0, arrElements, internalSize, externalSize);
         return true;
@@ -56,25 +58,26 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public T remove(int index) {
-        int currentSize = size();
-        if (currentSize == 0 || index < 0 || index >= currentSize) {
+        if (size == 0 || index < 0 || index >= size) {
             throw new NoSuchElementException();
         }
-        Object[] smallerArr = new Object[currentSize - 1];
-        if (currentSize == 1) {
-            return (T) smallerArr;
-        }
-
-        int countBeforeIndex = index;
-        int countAfterIndex = currentSize - index - 1;
-
-        if (countBeforeIndex > 0)
-            System.arraycopy(arrElements, 0, smallerArr, 0, countBeforeIndex);
-        if (countAfterIndex > 0)
-            System.arraycopy(arrElements, index + 1, smallerArr, index, countAfterIndex);
 
         T oldValue = (T) arrElements[index];
-        arrElements = smallerArr;
+
+        int newSize = size - 1;
+        if (size > 1) {
+            int countAfterIndex = newSize - index;
+            System.arraycopy(arrElements, index + 1, arrElements, index, countAfterIndex);
+
+            int newRealSize = size + DEFAULT_GROWTH_SIZE;
+            if (arrElements.length > newRealSize) {
+                Object[] arrSmaller = new Object[newRealSize];
+                System.arraycopy(arrElements, 0, arrSmaller, 0, newSize);
+                arrElements = arrSmaller;
+            }
+        }
+        set(newSize, null);
+        size = newSize;
 
         return oldValue;
     }
@@ -91,7 +94,7 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public T set(int index, T element) {
-        if (index >= size() || index < 0) {
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException("index: " + index);
         }
         T oldElement = (T) arrElements[index];
@@ -108,20 +111,26 @@ public class DIYArrayList<T> implements List<T> {
             throw new InternalError("growth size can't be equal to or less than zero: " + growthSize);
         }
 
-        int oldSize = size();
-        int newSize = oldSize + growthSize;
+        int realSize = arrElements.length;
+        int currentSize = size;
+        int newSize = currentSize + growthSize;
 
-        Object[] arrBigger = new Object[newSize];
-        if (newSize > 1) {
-            System.arraycopy(arrElements, 0, arrBigger, 0, oldSize);
+        size = newSize;
+        if (newSize > realSize) {
+            int newRealSize = realSize + DEFAULT_GROWTH_SIZE;
+            if (newRealSize < newSize)
+                newRealSize = newSize;
+            Object[] arrBigger = new Object[newRealSize];
+            if (newSize > 1) {
+                System.arraycopy(arrElements, 0, arrBigger, 0, currentSize);
+            }
+            arrElements = arrBigger;
         }
-        arrElements = arrBigger;
         return arrElements;
     }
 
     @Override
     public Object[] toArray() {
-        int size = size();
         Object[] arrEmpty = new Object[size];
 
         System.arraycopy(arrElements, 0, arrEmpty, 0, size);
@@ -149,7 +158,7 @@ public class DIYArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            return currentIndex < size();
+            return currentIndex < size;
         }
 
         @Override
