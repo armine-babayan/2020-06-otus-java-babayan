@@ -32,10 +32,14 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public void add(int index, T element) {
-        if (index < size) {
-            throw new IndexOutOfBoundsException("index can't be smaller than array size: " + index);
+        if (index > size) {
+            throw new IndexOutOfBoundsException("index can't be bigger than array size: " + index);
         }
+        int oldSize = size;
         grow();
+        if (index < oldSize) {
+            System.arraycopy(arrElements, index, arrElements, index + 1, oldSize - index);
+        }
         set(index, element);
     }
 
@@ -65,17 +69,19 @@ public class DIYArrayList<T> implements List<T> {
         T oldValue = (T) arrElements[index];
 
         int newSize = size - 1;
-        if (size > 1) {
+
+        if (newSize > 0) {
             int countAfterIndex = newSize - index;
             System.arraycopy(arrElements, index + 1, arrElements, index, countAfterIndex);
 
-            int newRealSize = size + DEFAULT_GROWTH_SIZE;
-            if (arrElements.length > newRealSize) {
-                Object[] arrSmaller = new Object[newRealSize];
-                System.arraycopy(arrElements, 0, arrSmaller, 0, newSize);
-                arrElements = arrSmaller;
+            int defaultGrowthSize = Math.max(DEFAULT_GROWTH_SIZE, arrElements.length >> 1);
+            int overSize = (size + defaultGrowthSize) - arrElements.length;
+
+            if (overSize > 0) {
+                arrElements = reduce(overSize);
             }
         }
+
         set(newSize, null);
         size = newSize;
 
@@ -112,30 +118,40 @@ public class DIYArrayList<T> implements List<T> {
         }
 
         int realSize = arrElements.length;
-        int currentSize = size;
-        int newSize = currentSize + growthSize;
+        int newSize = size + growthSize;
+
+        if (newSize > realSize) {
+            int newGrowthSize = Math.max(Math.max(DEFAULT_GROWTH_SIZE, growthSize), realSize >> 1);
+            if (realSize > 0) {
+                arrElements = resize(newGrowthSize);
+            } else {
+                arrElements = new Object[newGrowthSize];
+            }
+        }
 
         size = newSize;
-        if (newSize > realSize) {
-            int newRealSize = realSize + DEFAULT_GROWTH_SIZE;
-            if (newRealSize < newSize)
-                newRealSize = newSize;
-            Object[] arrBigger = new Object[newRealSize];
-            if (newSize > 1) {
-                System.arraycopy(arrElements, 0, arrBigger, 0, currentSize);
-            }
-            arrElements = arrBigger;
-        }
         return arrElements;
+    }
+
+    private Object[] reduce(int changeSize) {
+        return resize(-changeSize);
+    }
+
+    private Object[] resize(int changeSize) {
+        if (changeSize == 0) {
+            throw new InternalError("changeSize can't be equal to zero: " + changeSize);
+        }
+
+        Object[] arrChanged = new Object[arrElements.length + changeSize];
+
+        System.arraycopy(arrElements, 0, arrChanged, 0, size);
+
+        return arrChanged;
     }
 
     @Override
     public Object[] toArray() {
-        Object[] arrEmpty = new Object[size];
-
-        System.arraycopy(arrElements, 0, arrEmpty, 0, size);
-
-        return arrEmpty;
+        return reduce(arrElements.length - size);
     }
 
     @Override

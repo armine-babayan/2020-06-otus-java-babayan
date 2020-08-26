@@ -10,7 +10,7 @@ public class Starter {
 //        Collections.static <T> void copy(List<? super T> dest, List<? extends T> src)
 //        Collections.static <T> void sort(List<T> list, Comparator<? super T> c)
 
-        DIYArrayList<Integer> firstList = new DIYArrayList<>();
+        List<Integer> firstList = new DIYArrayList<>();
         for (int i = 0; i < 50; i++) {
             firstList.add((int) (Math.random() * 1000));
         }
@@ -25,10 +25,11 @@ public class Starter {
             System.out.println(i + "_" + firstList.get(i));
         }
 
-        DIYArrayList<Integer> listForAddToFirst = new DIYArrayList<>();
+        List<Integer> listForAddToFirst = new DIYArrayList<>();
         listForAddToFirst.add(777);
         listForAddToFirst.add(888);
         listForAddToFirst.add(999);
+        listForAddToFirst.add(0, 123);
 
         firstList.addAll(listForAddToFirst);
 
@@ -36,7 +37,7 @@ public class Starter {
             System.out.println(i + "_" + firstList.get(i));
         }
 
-        DIYArrayList<Integer> listForCopy = new DIYArrayList<>();
+        List<Integer> listForCopy = new DIYArrayList<>();
         listForCopy.add(000);
         listForCopy.add(111);
         listForCopy.add(222);
